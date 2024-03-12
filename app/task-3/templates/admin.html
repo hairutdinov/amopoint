@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ панель</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-3">
+    <form action="/logout" method="post">
+        <button type="submit" class="btn btn-danger">Выйти</button>
+    </form>
+</div>
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col">
+            <canvas id="visitsPerHour"></canvas>
+        </div>
+        <div class="col">
+            <canvas id="visitsByCity"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const visitsPerHourCanvas = document.getElementById('visitsPerHour');
+    const visitsByCityCanvas = document.getElementById('visitsByCity');
+
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('http://localhost:8080/unique-visits-per-hour')
+            .then(response => response.json())
+            .then(data => {
+                new Chart(visitsPerHourCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(item => item["hour"]),
+                        datasets: [{
+                            label: 'Количество визитов за час',
+                            data: data.map(item => item["visits"]),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+
+        fetch('http://localhost:8080/visits-by-city')
+            .then(response => response.json())
+            .then(data => {
+                new Chart(visitsByCityCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.map(item => item["city"]),
+                        datasets: [{
+                            label: 'Количество визитов за час',
+                            data: data.map(item => item["visits"]),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+</body>
+</html>
